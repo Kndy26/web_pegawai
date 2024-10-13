@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Aplikasi Kepegawaian</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}">
+    <!-- Tambahkan jsPDF Library -->
+    <script src="{{ url_for('static', filename='js/jspdf.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/jspdf.plugin.autotable.min.js') }}"></script>
+
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #ffffff;
+        }
+        th {
+            text-align: center;
+        }
+
+        body {
+            background-image: url("{{ url_for('static', filename='gradiasi1.png') }}"); /* Ganti dengan path gambar Anda */
+            background-repeat: no-repeat; /* Ulangi gambar? 'repeat', 'no-repeat', 'repeat-x', 'repeat-y' */
+            background-position: center; /* Posisi gambar: 'center', 'top', 'bottom', 'left', 'right', 'center top' */
+            background-size: cover; /* Ukuran gambar: 'cover', 'contain', 'auto', panjang x lebar */
+            background-color: #fadcc8;
+        }
+
+        /* Navigation Menu Container */
+        .nav-container {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            width: 250px;
+            background-color: #ffffff;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+            height: 0; /* Initially hidden */
+            overflow: hidden; /* Hide content until expanded */
+            transition: height 0.5s ease-in-out; /* Smooth height transition */
+            border-radius: 10px;
+        }
+
+        .nav-container.show {
+            height: 200px; /* Expand height when show class is applied */
+        }
+
+        /* Navigation Menu Items */
+        .nav-list {
+            padding: 20px;
+        }
+
+        .nav-item {
+            margin-bottom: 10px;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 10px;
+            text-decoration: none;
+            color: #333;
+            transition: background-color 0.3s ease-in-out;
+        }
+
+        .nav-link:hover {
+            background-color: #eee;
+        }
+
+        /* Toggle Button */
+        .containerburger {
+            display: inline-block;
+            cursor: pointer;
+            position: relative;
+            top: 40px;
+            left: 1670px;
+            z-index: 10;
+        }
+
+        .bar1, .bar2, .bar3 {
+            width: 30px;
+            height: 5px;
+            background-color: #333;
+            margin: 6px 0;
+            transition: 0.4s;
+        }
+
+        .change .bar1 {
+            transform: translate(10px, 11px) rotate(90deg);
+        }
+
+        .change .bar2 {
+            transform: rotate(90deg);
+        }
+
+        .change .bar3 {
+            transform: translate(-10px, -11px) rotate(90deg);
+        }
+        
+        #clock {
+            font-size: 30px;
+            width: 200px;
+            margin: 0px;
+            text-align: center;
+            border: 2px solid black;
+            border-radius: 20px;
+            position: absolute;
+            bottom: 3%;
+            left: 3%;
+        }
+    </style>
+</head>
+<body>
+    <div id="clock">8:10:45</div>
+    <div class="containerburger" onclick="myFunction(this)">
+        <div class="bar1"></div>
+        <div class="bar2"></div>
+        <div class="bar3"></div>
+    </div>
+    
+    <div class="nav-container">
+        <ul class="nav-list">
+            <p> <br> </p>
+            <p class="nav-item"><a href="http://localhost:5000/home" class="nav-link" onclick="home()">Home</a></p>
+            <p class="nav-item"><a href="http://localhost:5000/logout" class="nav-link" onclick="logout()">Log Out</a></p>
+        </ul>
+    </div>
+
+    <div class="container">
+        <h1>Data Kepegawaian</h1>
+        <!-- Input untuk pencarian -->
+        <div class="mb-3">
+            <input type="text" id="searchInput" class="form-control" placeholder="Cari berdasarkan NIK atau Nama">
+        </div>
+        
+        <!-- Form untuk urutan data -->
+        <div class="mb-3">
+            <label for="sortColumn">Urutkan Berdasarkan:</label>
+            <div class="form-row">
+                <div class="col-md-4 mb-3">
+                    <select class="form-control" id="sortColumn">
+                        <option value="nik" {% if sort_column == 'nik' %}selected{% endif %}>NIK</option>
+                        <option value="gaji" {% if sort_column == 'gaji' %}selected{% endif %}>Gaji</option>
+                        <option value="nama" {% if sort_column == 'nama' %}selected{% endif %}>Nama</option>
+                        <option value="tgllahir" {% if sort_column == 'tgllahir' %}selected{% endif %}>Tanggal Lahir</option>
+                    </select>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <select class="form-control" id="sortOrder">
+                        <option value="asc" {% if sort_order == 'asc' %}selected{% endif %}>Ascending ↑</option>
+                        <option value="dsc" {% if sort_order == 'dsc' %}selected{% endif %}>Descending ↓</option>
+                    </select>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <button class="btn btn-primary" onclick="sortData()">Apply</button>
+                </div>
+            </div>
+        </div>
+
+        <table class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th width="11%">NIK</th>
+                    <th width="7%">Foto</th>
+                    <th width="10%">Nama</th>
+                    <th width="10%">Alamat</th>
+                    <th width="8%">Tgl.Lahir</th>
+                    <th width="10%">Jenis.K</th>
+                    <th width="9%">Status</th>
+                    <th>Gaji</th>
+                    <th width="15%">Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in container %}
+                <tr>
+                    <td>{{ row[0] }}</td>
+                    <td>
+                        <img src="{{ url_for('static', filename='foto/' + row[0] + '.jpg') }}" alt="Foto {{ row[1] }}" width="70">
+                    </td>
+                    <td>{{ row[1] }}</td>
+                    <td>{{ row[2] }}</td>
+                    <td>{{ row[3].strftime('%d/%m/%Y') }}</td>
+                    <td>{{ row[4] }}</td>
+                    <td>{{ row[5] }}</td>
+                    <td style="text-align: right;">{{ "{:,.2f}".format(row[6]) }}</td>
+                    <td>
+                        <div class="btn-group" role="group">
+                            <a href="#" class="btn btn-secondary print-btn" data-nik="{{ row[0] }}">Print</a>
+                            <a href="http://localhost:5000/edit/{{row[0]}}" class="btn btn-warning" role="button">Ubah</a>
+                            <a href="http://localhost:5000/hapus/{{row[0]}}" class="btn btn-danger" role="button" onclick="return confirm('Apakah Anda yakin ingin menghapus data ini?')">Hapus</a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <!-- Pagination -->
+        <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-center">
+                <li class="page-item" id="previous"><a class="page-link" href="#">Sebelumnya</a></li>
+                <li class="page-item" id="page1"><button class="page-link btn btn-link">1</button></li>
+                <li class="page-item" id="page2"><button class="page-link btn btn-link">2</button></li>
+                <li class="page-item" id="page3"><button class="page-link btn btn-link">3</button></li>
+                <li class="page-item" id="next"><a class="page-link" href="#">Selanjutnya</a></li>
+            </ul>
+        </nav>
+        
+        <a href="http://localhost:5000/tambah" class="btn btn-primary" role="button">Tambah Data</a>
+        <a href="http://localhost:5000/logout" class="btn btn-secondary" role="button" style="background-color: red; color: white; float: right;">Logout</a>
+    </div>
+    
+    <!-- JavaScript untuk Bootstrap -->
+    <script src="{{ url_for('static', filename='bootstrap/js/bootstrap.min.js') }}"></script>
+    
+    <script>
+        var currentPage = 1;
+        var itemsPerPage = 4;
+        var totalRows = document.querySelectorAll('tbody tr').length;
+
+        function displayData(page) {
+            var startIndex = (page - 1) * itemsPerPage;
+            var endIndex = startIndex + itemsPerPage;
+
+            var rows = document.querySelectorAll('tbody tr');
+            for (var i = 0; i < rows.length; i++) {
+                if (i >= startIndex && i < endIndex) {
+                    rows[i].style.display = "";
+                } else {
+                    rows[i].style.display = "none";
+                }
+            }
+        }
+
+        function updatePaginationButtons() {
+            var totalPages = Math.ceil(totalRows / itemsPerPage);
+            var page1 = document.getElementById('page1');
+            var page2 = document.getElementById('page2');
+            var page3 = document.getElementById('page3');
+
+            if (currentPage <= 3) {
+                page1.innerHTML = '<button class="page-link btn btn-link">1</button>';
+                page2.innerHTML = '<button class="page-link btn btn-link">2</button>';
+                page3.innerHTML = '<button class="page-link btn btn-link">3</button>';
+            } else {
+                page1.innerHTML = '<button class="page-link btn btn-link">' + (currentPage - 1) + '</button>';
+                page2.innerHTML = '<button class="page-link btn btn-link">' + currentPage + '</button>';
+                page3.innerHTML = '<button class="page-link btn btn-link">' + (currentPage + 1) + '</button>';
+            }
+        }
+
+        displayData(currentPage);
+        updatePaginationButtons();
+
+        document.getElementById('previous').addEventListener('click', function() {
+            if (currentPage > 1) {
+                currentPage--;
+                displayData(currentPage);
+                updatePaginationButtons();
+            }
+        });
+
+        document.getElementById('next').addEventListener('click', function() {
+            if (currentPage < Math.ceil(totalRows / itemsPerPage)) {
+                currentPage++;
+                displayData(currentPage);
+                updatePaginationButtons();
+            }
+        });
+
+        document.getElementById('page1').addEventListener('click', function() {
+            currentPage = parseInt(this.textContent);
+            displayData(currentPage);
+            updatePaginationButtons();
+        });
+
+        document.getElementById('page2').addEventListener('click', function() {
+            currentPage = parseInt(this.textContent);
+            displayData(currentPage);
+            updatePaginationButtons();
+        });
+
+        document.getElementById('page3').addEventListener('click', function() {
+            currentPage = parseInt(this.textContent);
+            displayData(currentPage);
+            updatePaginationButtons();
+        });
+
+        // Fungsi pencarian
+        document.getElementById('searchInput').addEventListener('keyup', function() {
+            var searchText = this.value.toLowerCase();
+            var rows = document.querySelectorAll('tbody tr');
+            for (var i = 0; i < rows.length; i++) {
+                var rowText = rows[i].textContent.toLowerCase();
+                if (rowText.includes(searchText)) {
+                    rows[i].style.display = "";
+                } else {
+                    rows[i].style.display = "none";
+                }
+            }
+            currentPage = 1; // Reset ke halaman pertama setelah pencarian
+            updatePaginationButtons();
+        });
+
+        //fungsi untuk print ke pdf
+        function printToPDF(nik) {
+            // Mengambil data pegawai dari server berdasarkan NIK
+            fetch(`/get_employee_data/${nik}`)
+            .then(response => response.json())
+            .then(data => {
+                var doc = new jsPDF();
+                doc.text(20, 20, 'Data Kepegawaian');
+                
+                // Menambahkan data ke PDF berdasarkan data pegawai yang diperoleh
+                
+                doc.text(20, 40, `NIK: ${data.nik}`);
+                doc.text(20, 50, `Nama: ${data.nama}`);
+                doc.text(20, 60, `Alamat: ${data.alamat}`);
+                doc.text(20, 70, `Tgl.Lahir: ${data.tgllahir}`);
+                doc.text(20, 80, `Jenis Kelamin: ${data.jeniskelamin}`);
+                doc.text(20, 90, `Status: ${data.status}`);
+                doc.text(20, 100, `Gaji: ${data.gaji}`);
+                
+                // Generate pratinjau PDF sebelum menyimpan
+                var pdfOutput = doc.output('datauristring');
+                
+                // Tampilkan pratinjau PDF dalam jendela baru
+                var iframe = "<iframe width='100%' height='100%' src='" + pdfOutput + "'></iframe>";
+                var x = window.open();
+                x.document.open();
+                x.document.write(iframe);
+                x.document.close();
+                
+                // Simpan PDF
+                doc.save('DetailKepegawaian.pdf');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+
+        // Simpan pilihan user sebelumnya
+        var prevSortColumn = "nik"; // Atur nilai default
+        var prevSortOrder = "asc"; // Atur nilai default
+        
+        // Atur ulang kotak pilihan sebelum halaman dimuat ulang
+        window.onbeforeunload = function () {
+            // Panggil setSelectValue sebelum halaman dimuat ulang
+            setSelectValue('sortColumn', prevSortColumn);
+            setSelectValue('sortOrder', prevSortOrder);
+        };
+
+        function sortData() {
+            var column = document.getElementById('sortColumn').value;
+            var order = document.getElementById('sortOrder').value;
+
+            // Simpan pilihan user
+            prevSortColumn = column;
+            prevSortOrder = order;
+
+            // Mengarahkan ke URL yang tepat untuk pengurutan
+            window.location.href = `/sort/${column}/${order}`;
+        }
+
+        function setSelectValue(selectId, value) {
+            var selectElement = document.getElementById(selectId);
+            for (var i = 0; i < selectElement.options.length; i++) {
+                if (selectElement.options[i].value === value) {
+                    selectElement.selectedIndex = i;
+                    break;
+                }
+            }
+        }
+
+        // Event Listener untuk tombol Print
+        var printButtons = document.querySelectorAll('.print-btn');
+        printButtons.forEach(function(button) {
+            button.addEventListener('click', function(event) {
+                event.preventDefault();
+                var nik = this.getAttribute('data-nik'); // Ambil NIK dari atribut data-nik tombol
+                printToPDF(nik);
+            });
+        });
+
+        function myFunction(x) {
+            x.classList.toggle("change");
+            const navContainer = document.querySelector('.nav-container');
+            navContainer.classList.toggle('show'); 
+        }
+
+        function logout() {
+              // Assuming this function is called when the logout button is clicked
+              window.location.href = "http://localhost:5000/login";
+              window.history.replaceState(null, null, "http://localhost:5000/login");
+        }
+
+        function home() {
+              // Assuming this function is called when the logout button is clicked
+              window.location.href = "http://localhost:5000/home";
+              window.history.replaceState(null, null, "http://localhost:5000/home");
+        }
+
+        // Calling showTime function at every second
+        setInterval(showTime, 1000);
+        
+        // Defining showTime funcion
+        function showTime() {
+            // Getting current time and date
+            let time = new Date();
+            let hour = time.getHours();
+            let min = time.getMinutes();
+            let sec = time.getSeconds();
+            am_pm = "AM";
+        
+            // Setting time for 12 Hrs format
+            if (hour >= 12) {
+                if (hour > 12) hour -= 12;
+                am_pm = "PM";
+            } else if (hour == 0) {
+                hr = 12;
+                am_pm = "AM";
+            }
+        
+            hour =
+                hour < 10 ? "0" + hour : hour;
+            min = min < 10 ? "0" + min : min;
+            sec = sec < 10 ? "0" + sec : sec;
+        
+            let currentTime =
+                hour +
+                ":" +
+                min +
+                ":" +
+                sec +
+                am_pm;
+        
+            // Displaying the time
+            document.getElementById(
+                "clock"
+            ).innerHTML = currentTime;
+        }
+        
+        showTime();
+    </script>
+</body>
+</html>

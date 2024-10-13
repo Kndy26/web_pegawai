@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Halaman Home</title>
+    <style>
+        body {
+            min-height: 100vh;
+            font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif; 
+            overflow: hidden;
+            background-image: url("{{ url_for('static', filename='gradiasi1.png') }}"); /* Ganti dengan path gambar Anda */
+            background-repeat: no-repeat; /* Ulangi gambar? 'repeat', 'no-repeat', 'repeat-x', 'repeat-y' */
+            background-position: center; /* Posisi gambar: 'center', 'top', 'bottom', 'left', 'right', 'center top' */
+            background-size: cover; /* Ukuran gambar: 'cover', 'contain', 'auto', panjang x lebar */
+        }
+
+        h1 {
+            font-size: 15em;
+            color: #333237;
+            margin-bottom: 20px;
+            position: absolute;
+            top: 37px;
+            left: 190px;
+        }
+
+        h2 {
+            font-size: 5em; 
+            color: #333237;
+            margin-bottom: 20px;
+            position: absolute;
+            top: 355px;
+            left: 205px;
+        }
+
+        button {
+            background-color: green; 
+            color: white;
+            padding: 45px 80px; 
+            border: none;
+            border-radius: 5px; 
+            font-size: 1.5em; 
+            cursor: pointer;
+            position: absolute;
+            top: 300px;
+            left: 1100px;
+        }
+
+        /* Navigation Menu Container */
+        .nav-container {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            width: 250px;
+            background-color: white;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+            height: 0; /* Initially hidden */
+            overflow: hidden; /* Hide content until expanded */
+            transition: height 0.5s ease-in-out; /* Smooth height transition */
+            border-radius: 10px;
+        }
+
+        .nav-container.show {
+            height: 200px; /* Expand height when show class is applied */
+        }
+
+        /* Navigation Menu Items */
+        .nav-list {
+            padding: 20px;
+        }
+
+        .nav-item {
+            margin-bottom: 10px;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 10px;
+            text-decoration: none;
+            color: #333;
+            transition: background-color 0.3s ease-in-out;
+        }
+
+        .nav-link:hover {
+            background-color: #eee;
+        }
+
+        /* Toggle Button */
+        .container {
+            display: inline-block;
+            cursor: pointer;
+            position: fixed;
+            top: 45px;
+            right: 45px;
+            z-index: 10;
+        }
+
+        .bar1, .bar2, .bar3 {
+            width: 30px;
+            height: 5px;
+            background-color: #333;
+            margin: 6px 0;
+            transition: 0.4s;
+        }
+
+        .bar4 {
+            width: 250px;
+            height: 30px;
+            background-color: #333;
+            position: fixed;
+            top: 61%;
+            left: 205px;
+            border-radius: 15px;
+        }
+
+        .change .bar1 {
+            transform: translate(10px, 11px) rotate(90deg);
+        }
+
+        .change .bar2 {
+            transform: rotate(90deg);
+        }
+
+        .change .bar3 {
+            transform: translate(-10px, -11px) rotate(90deg);
+        }
+
+        .tombol-list {
+            width: 30rem;
+            height: 20rem;
+            box-shadow: 0 0 1rem 0 rgba(0, 0, 0, .2); 
+            border-radius: 5px;
+            position: relative;
+            top: 240px;
+            left: 975px;
+            z-index: 1;
+            background: inherit;
+            overflow: hidden;
+            transition: transform 0.3s ease-in-out;
+            cursor: pointer;
+        }
+
+        .tombol-list:hover {
+            transform: scale(1.05); /* Slightly enlarge on hover */
+            box-shadow: 0 0 2rem 0 rgba(0, 0, 0, .5); /* Increase shadow on hover */
+        }
+
+        .tombol-list:active {
+            transform: scale(0.98); /* Slightly shrink on click */
+            box-shadow: 0 0 1rem 0 rgba(0, 0, 0, .7); /* Increase shadow on click */
+        }
+
+        .tombol-list:before {
+            content: "";
+            position: absolute;
+            background: inherit;
+            z-index: -1;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            box-shadow: inset 0 0 2000px rgba(255, 255, 255, .5);
+            filter: blur(10px);
+            margin: -20px;
+        }
+
+        .money img {
+            width: 50px;
+            animation: bubble 7s linear infinite;
+        }
+        
+        .money {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            position: absolute;
+            bottom: -70px;
+        }
+
+        @keyframes bubble{
+            0%{
+                transform: translateY(0);
+                opacity: 0;
+            }
+            50%{
+                opacity: 1;
+            }
+            70%{
+                opacity: 1;
+            }
+            100%{
+                transform: translateY(-100vh);
+                opacity: 0;
+            }
+        }
+
+        .money img:nth-child(1) {
+            animation-delay: 2s;
+        }
+        .money img:nth-child(2) {
+            animation-delay: 1s;
+        }
+        .money img:nth-child(3) {
+            animation-delay: 3s;
+        }
+        .money img:nth-child(4) {
+            animation-delay: 4.5s;
+        }
+        .money img:nth-child(5) {
+            animation-delay: 3s;
+        }
+        .money img:nth-child(6) {
+            animation-delay: 6s;
+        }
+        .money img:nth-child(7) {
+            animation-delay: 7s;
+        }
+        #clock {
+            font-size: 30px;
+            width: 200px;
+            margin: 0px;
+            text-align: center;
+            border: 2px solid black;
+            border-radius: 20px;
+            position: absolute;
+            bottom: 3%;
+            left: 3%;
+        }
+
+    </style>
+</head>
+<body>
+    <div id="clock">8:10:45</div>
+
+    <h1>Halo!</h1>
+    <h2>{{ username }}</h2>
+    <div class="bar4"></div>
+
+    <div class="container" onclick="myFunction(this)">
+        <div class="bar1"></div>
+        <div class="bar2"></div>
+        <div class="bar3"></div>
+    </div>
+
+    <div class="nav-container">
+        <ul class="nav-list">
+            <p> <br> </p>
+            <p class="nav-item"><a href="http://localhost:5000/logout" class="nav-link" onclick="logout()">Log Out</a></p>
+            <p class="nav-item"><a href="#" class="nav-link" onclick="deleteAccount()">Hapus Akun</a></p> 
+        </ul>
+    </div>
+
+    <button class="tombol-list" onclick="window.location.href='{{ url_for('index') }}';">
+        <p class=""><a href="{{ url_for('index') }}" style="color: #333237; text-decoration: none; font-size: 45px; font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;">Data Pegawai</a></p>
+    </button>
+
+    <div class="money">
+        <img src="{{ url_for('static', filename='duit.png') }}">
+        <img src="{{ url_for('static', filename='duit.png') }}">
+        <img src="{{ url_for('static', filename='duit.png') }}">
+        <img src="{{ url_for('static', filename='duit.png') }}">
+        <img src="{{ url_for('static', filename='duit.png') }}">
+        <img src="{{ url_for('static', filename='duit.png') }}">
+        <img src="{{ url_for('static', filename='duit.png') }}">
+    </div>
+    <script>
+        function myFunction(x) {
+            x.classList.toggle("change");
+            const navContainer = document.querySelector('.nav-container');
+            navContainer.classList.toggle('show'); 
+        }
+        function logout() {
+            // Assuming this function is called when the logout button is clicked
+            window.location.href = "http://localhost:5000/login";
+            window.history.replaceState(null, null, "http://localhost:5000/login");
+        }
+        function index() {
+            // Assuming this function is called when the logout button is clicked
+            window.location.href = "http://localhost:5000/";
+            window.history.replaceState(null, null, "http://localhost:5000/");
+        }
+        function deleteAccount() {
+            if (confirm("Apakah Anda yakin ingin menghapus akun ini? Aksi ini tidak dapat diurungkan.")) {
+                // Kirim permintaan POST ke route '/delete_account' di server
+                fetch('/delete_account', {
+                    method: 'POST'
+                })
+                .then(response => {
+                    // Jika berhasil, redirect ke halaman login
+                    if (response.ok) {
+                        window.location.href = "http://localhost:5000/login";
+                    } else {
+                        // Handle error jika ada
+                        console.error('Error deleting account:', response);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting account:', error);
+                });
+            }
+        }
+        // Calling showTime function at every second
+        setInterval(showTime, 1000);
+        
+        // Defining showTime funcion
+        function showTime() {
+            // Getting current time and date
+            let time = new Date();
+            let hour = time.getHours();
+            let min = time.getMinutes();
+            let sec = time.getSeconds();
+            am_pm = "AM";
+        
+            // Setting time for 12 Hrs format
+            if (hour >= 12) {
+                if (hour > 12) hour -= 12;
+                am_pm = "PM";
+            } else if (hour == 0) {
+                hr = 12;
+                am_pm = "AM";
+            }
+        
+            hour =
+                hour < 10 ? "0" + hour : hour;
+            min = min < 10 ? "0" + min : min;
+            sec = sec < 10 ? "0" + sec : sec;
+        
+            let currentTime =
+                hour +
+                ":" +
+                min +
+                ":" +
+                sec +
+                am_pm;
+        
+            // Displaying the time
+            document.getElementById(
+                "clock"
+            ).innerHTML = currentTime;
+        }
+        
+        showTime();
+    </script>
+</body>
+</html>

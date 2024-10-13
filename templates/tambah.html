@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tambah Data Kepegawaian</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-image: url("{{ url_for('static', filename='gradiasi1.png') }}"); /* Ganti dengan path gambar Anda */
+            background-repeat: no-repeat; /* Ulangi gambar? 'repeat', 'no-repeat', 'repeat-x', 'repeat-y' */
+            background-position: center; /* Posisi gambar: 'center', 'top', 'bottom', 'left', 'right', 'center top' */
+            background-size: cover; /* Ukuran gambar: 'cover', 'contain', 'auto', panjang x lebar */           
+        }
+        #preview-foto {
+            width: 100px;
+            height: 100px;
+            border: 1px solid #ccc;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+        #preview-foto img {
+            width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>Tambah Data Kepegawaian</h2>
+        <form method="POST" action="/tambah" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="nik">NIK:</label>
+                <input type="text" class="form-control" id="nik" name="nik" readonly value="{{ nik }}">
+            </div>
+            <div class="form-group">
+                <label for="nama">Nama:</label>
+                <input type="text" class="form-control" id="nama" name="nama" required>
+            </div>
+            <div class="form-group">
+                <label for="alamat">Alamat:</label>
+                <textarea class="form-control" id="alamat" name="alamat" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="tgllahir">Tanggal Lahir:</label>
+                <input type="date" class="form-control" id="tgllahir" name="tgllahir" required>
+            </div>
+            <div class="form-group">
+                <label for="jeniskelamin">Jenis Kelamin:</label>
+                <select class="form-control" id="jeniskelamin" name="jeniskelamin" required>
+                    <option value="Laki-laki">Laki-laki</option>
+                    <option value="Perempuan">Perempuan</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="status">Status:</label>
+                <select class="form-control" id="status" name="status" required>
+                    <option value="Married">Married</option>
+                    <option value="Single">Single</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="gaji">Gaji:</label>
+                <input type="number" class="form-control" id="gaji" name="gaji" required>
+            </div>
+            <div class="form-group">
+                <label for="foto">Foto:</label>
+                <input type="file" class="form-control-file" id="foto" name="foto" accept="image/*">
+                <div id="preview-foto"></div>
+            </div>
+            <button type="submit" class="btn btn-primary">Simpan</button>
+            <a href="/" class="btn btn-secondary">Batal</a>
+        </form>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        // Preview Foto
+        const fotoInput = document.getElementById('foto');
+        const previewFoto = document.getElementById('preview-foto');
+
+        fotoInput.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewFoto.innerHTML = `<img src="${e.target.result}" alt="Preview Foto">`;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                previewFoto.innerHTML = ''; // Hapus preview jika tidak ada foto dipilih
+            }
+        });
+    </script>
+</body>
+</html>
